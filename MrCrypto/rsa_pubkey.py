@@ -63,11 +63,13 @@ def rsa_decrypt(message):
 	
 def rsa_getPubKey():
 	try:
-		f = open('server.pub')
+		f = open('rsa_server.pub')
 	except:
 		try:
 			print '\t[+] attempting to generate new key pair'
 			rsa_key_export()
+			f = open('rsa_server.pub')
+			return f.read()
 		except:
 			print '\t[-] generate new key pair error'
 			return 'Error'
