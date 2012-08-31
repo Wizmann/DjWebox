@@ -324,6 +324,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="on_loginDlg_reg_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -732,6 +733,9 @@
   </object>
   <object class="GtkWindow" id="regDlg">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">用户注册</property>
+    <property name="modal">True</property>
+    <property name="icon">logo.png</property>
     <child>
       <object class="GtkVBox" id="vbox4">
         <property name="visible">True</property>
@@ -876,7 +880,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entryUname">
+                  <object class="GtkEntry" id="reg_entry_name">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="max_length">16</property>
@@ -892,7 +896,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entryPword">
+                  <object class="GtkEntry" id="reg_entry_email">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="max_length">32</property>
@@ -910,7 +914,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entryPwordd">
+                  <object class="GtkEntry" id="reg_entry_pword1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="max_length">16</property>
@@ -929,7 +933,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entryPwordAgn">
+                  <object class="GtkEntry" id="reg_entry_pword2">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="max_length">16</property>
@@ -1000,7 +1004,7 @@
             <property name="can_focus">False</property>
             <child>
               <object class="GtkAspectFrame" id="aspectframe24">
-                <property name="width_request">200</property>
+                <property name="width_request">90</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label_xalign">0</property>
@@ -1026,6 +1030,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="on_btn_OK_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1040,6 +1045,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="on_btn_cancel_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1056,6 +1062,7 @@
             </child>
             <child>
               <object class="GtkAspectFrame" id="aspectframe25">
+                <property name="width_request">90</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label_xalign">0</property>

@@ -10,6 +10,7 @@ import MrCommand as mrc
 import globalControl as gctrl
 from globalControl import MessageBox
 from procDlg import procDlg
+from regDlg import regDlg
 
 pygtk.require('2.0')
 
@@ -39,7 +40,11 @@ class loginDlg():
 		
 	def on_loginDlg_cancel_clicked(self,*args):
 		gtk.Widget.destroy(self.mainDlg)
-		
+	
+	def on_loginDlg_reg_clicked(self,*args):
+		_regdlg=regDlg()
+		_regdlg.main()
+	
 	def on_loginDlg_ok_clicked(self,*args):
 		str_name=self.gladeMain.get_object('entry_name').get_text()
 		str_email=self.gladeMain.get_object('entry_email').get_text()

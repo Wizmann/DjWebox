@@ -78,10 +78,13 @@ def login(request):
 									tk.save()
 								except:
 									message='333 System Error!'
+						else:
+							message='201 username/password Error'
 					else:
 						message="202 TimeStamp Overtime!"
 						
-				except:
+				except Exception,e:
+					print e
 					message="202 TimeStamp Error!"
 			else:
 				message = "999 Unknown Method"
@@ -90,9 +93,11 @@ def login(request):
 	else:
 		message = '333 System Error!'
 	try:
+		print message
 		obj = AES.new(pword, AES.MODE_ECB)     
 		crypt = obj.encrypt(padit(message))
 		message=binascii.b2a_hex(crypt)
 	except:
 		message='333 System Error!'
+	
 	return HttpResponse(message)

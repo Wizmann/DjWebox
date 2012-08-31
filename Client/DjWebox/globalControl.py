@@ -12,6 +12,8 @@ from mainDlg import *
 def codeToString(x):
 	if(x==201): return '认证失败!'
 	elif(x==202): return '时间戳失效!'
+	elif(x==203): return '注册失败'
+	elif(x==204): return '错误的请求'
 	elif(x==333): return '系统错误'
 	else: return '未知错误'
 

@@ -19,9 +19,10 @@ def register(request):
 					 )
 		try:
 			new_user.save()
-			message='OK!'
-		except:
-			message='Fail!'
+			message='200 OK'
+		except Exception,e:
+			print e
+			message='203 DataBase Error'
 	else:
-		message = 'Error!'
+		message = '204 Bad Request'
 	return HttpResponse(message)

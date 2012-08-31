@@ -113,3 +113,27 @@ def login(uname,email,pword):
 			return code
 	except:
 		return 999
+		
+def register(uname,email,pword):
+	uname=uname.strip()
+	email=email.strip()
+	pword=pword.strip()
+	
+	pubkey=get_pubkey()
+	pword=MD5_Encode(uname+email+pword)
+	user_data = {
+        'uname' : uname,
+        'email' : email,
+        'pword' : pword,
+        }
+	json_data=json.dumps(user_data)
+	json_data=rsa_pubkey.rsa_encrypt(json_data)
+	postdata={'reg_data' : json_data}
+	postdata = urllib.urlencode(postdata)
+	req = urllib2.Request(
+		url = 'http://localhost:8000/register/',
+		data = postdata,
+		headers = {'User-Agent' : 'Offical Clinet for DjWebox'},
+		)
+	result = urllib2.urlopen(req).read()
+	return result.split()[0]
