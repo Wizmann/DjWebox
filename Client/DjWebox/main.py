@@ -9,9 +9,7 @@ import sys,os
 
 from mainDlg import mainDlg
 
-
 pygtk.require('2.0')
-
 
 if(__name__=='__main__'):
 	_mainDlg=mainDlg()

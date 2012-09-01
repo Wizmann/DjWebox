@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 import json
 import time,random
 from django.http import HttpResponse
@@ -99,5 +100,4 @@ def login(request):
 		message=binascii.b2a_hex(crypt)
 	except:
 		message='333 System Error!'
-	
 	return HttpResponse(message)

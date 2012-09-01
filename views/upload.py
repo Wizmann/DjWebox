@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 import json
 import time,random,sys,os
 from django import http
@@ -39,14 +40,14 @@ def upload(request):
 			user=User.objects.get(name=uname)
 			token=Token.objects.get(name=uname)
 		except:
-			return HttpResponse("User Not Found")
+			return HttpResponse("201 User_Not_Found")
 		md5_pwd=user.pword
 		token_code=token.token;
 		timestamp=token.timeStamp;
 		now=int(time.time())
 		if(now-timestamp>=43200):
 			#One token is authed for 12 hours
-			return HttpResponse("Token Out of Date")
+			return HttpResponse("201 Token_Out_of_Date")
 		else:
 			_MD5=md5()
 			_MD5.update(md5_pwd+token_code)
@@ -63,15 +64,15 @@ def upload(request):
 								fb=FileBox(owner=user,filename=bfile.name,position=os.path.join(path,bfile.name))
 								fb.save()
 							except:
-								return HttpResponse("Create FileBox Error")
+								return HttpResponse("205 Create_FileBox_Error")
 							try:
 								save_to_box(path,bfile.name,bfile)
 							except:
-								return HttpResponse("Save_to_box Error")
+								return HttpResponse("205 Save_to_box_Error")
 					except:
-						return HttpResponse("Unknown User")
+						return HttpResponse("999 Unknown User")
 					
-				return HttpResponse("OK")
-			else: return HttpResponse("Auth Failed!")
+				return HttpResponse("200 OK")
+			else: return HttpResponse("201 Auth Failed!")
 	except Exception, e:
-		return HttpResponse(e)
+		return HttpResponse('999 '+str(e))

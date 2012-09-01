@@ -80,9 +80,6 @@ class loginDlg():
 				auto_login=self.gladeMain.get_object("chkbtn_autoLogin").get_active()
 				if(auto_login):
 					gctrl.globalControl.write_to_file()
-				######################################
-				#TODO:
-				#Refresh the file list
-				######################################
+	
 				gtk.Widget.destroy(self.mainDlg)
 				self.res_list.append(True)
