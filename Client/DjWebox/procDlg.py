@@ -31,6 +31,7 @@ class procDlg():
 	def destroy_progress(self, widget, data=None):  
 		gobject.source_remove(self.timer1)
 		gobject.source_remove(self.timer2)  
+		
 		gtk.main_quit()  
 	
 	def is_finished(self,*args):
@@ -45,7 +46,9 @@ class procDlg():
 			gobject.source_remove(self.timer2) 
 			gtk.Widget.destroy(self.mainWindow)
 		return True
-	
+	def on_procDlg_destroy(self,*args):
+		self.status['running']=False
+		
 	def progress_timeout(self,pbobj):
 		pbobj.pulse()
 		pbobj.set_pulse_step(0.01)  

@@ -66,23 +66,26 @@ class mainDlg():
 		except Exception,e:
 			print e
 			self.gladeMain.get_object("statusbar").push(0, '登录失败：网络连接错误！')
-		
+		self.selectedRow=-1
 	
 	def build_list(self):
 		self.mainTreeView=self.gladeMain.get_object('treeview')
-		def _addListColumn(title, columnId):
-			column = gtk.TreeViewColumn(title, gtk.CellRendererText(),text=columnId)
-			column.set_resizable(True)
-			column.set_sort_column_id(columnId)
-			column.set_min_width(250)
-			self.mainTreeView.append_column(column)
-		_addListColumn('文件名',0)
-		_addListColumn('文件大小',1)
-		self.mainList = gtk.ListStore(str,str)
+		
+		column = gtk.TreeViewColumn('文件名', gtk.CellRendererText(),text=0)
+		column.set_resizable(True)
+		column.set_sort_column_id(0)
+		column.set_min_width(250)
+		self.mainTreeView.append_column(column)
+		
+		column = gtk.TreeViewColumn('文件大小(B)', gtk.CellRendererText(),text=1)
+		column.set_resizable(True)
+		column.set_sort_column_id(1)
+		column.set_min_width(250)
+		self.mainTreeView.append_column(column)
+		
+		self.mainList = gtk.ListStore(str,int)
 		self.mainTreeView.set_model(self.mainList)
 		
-		#self.refreshTreeView()
-		self.selectedRow=-1
 	
 	def main(self):
 		gtk.main()
@@ -105,10 +108,11 @@ class mainDlg():
 				for lines in itemlist.split('\n'):
 					print lines
 					lines=lines.split('___SPLIT___')
-					self.mainList.append((lines[0],lines[1]))
+					self.mainList.append([lines[0],int(lines[1])])
 		except Exception,e:
 			print e
 			self.gladeMain.get_object("statusbar").push(0, '刷新列表失败：请先登录或检查网络连接')
+		self.selectedRow=-1
 
 	def on_toolbtn_refresh_clicked(self,*args):
 		self.refreshTreeView()
@@ -131,6 +135,7 @@ class mainDlg():
 		response = fcDlg.run()
 		if response == gtk.RESPONSE_OK:
 			path=fcDlg.get_filename()
+			fcDlg.destroy()
 			class MrUpload(threading.Thread):
 				def __init__(self,i_status):
 					super(MrUpload, self).__init__()
@@ -152,8 +157,8 @@ class mainDlg():
 					finally:
 						self.status['running']=False
 			status={}
-			_mrlogin=MrUpload(status)
-			_mrlogin.start()
+			_mrupload=MrUpload(status)
+			_mrupload.start()
 			_procdlg=procDlg(status)
 			_procdlg.main()
 			if('return_value' in status):
@@ -165,7 +170,93 @@ class mainDlg():
 			else:
 				self.gladeMain.get_object("statusbar").push(0, '上传失败：请先登录或检查网络连接')
 		elif response == gtk.RESPONSE_CANCEL:
-			pass
-		fcDlg.destroy()
+			fcDlg.destroy()
+		
 		self.refreshTreeView()
+	def on_treeview_cursor_changed(self,*args):
+		try:
+			self.selectedRow = self.mainTreeView.get_cursor()[0][0]
+		except:
+			self.selectedRow = -1
+	def on_toolbtn_del_clicked(self,*args):
+		#print self.mainList.get_value(_iter,0)
+		try:
+			_iter=self.mainList.get_iter(self.selectedRow)
+			value=self.mainList.get_value(_iter,0)
+			class MrDel(threading.Thread):
+				def __init__(self,i_status):
+					super(MrDel, self).__init__()
+					self.status=i_status
+				def run(self):
+					self.status['running']=True
+					str_name=gctrl.globalControl.uname
+					str_email=gctrl.globalControl.email
+					str_pwd=gctrl.globalControl.pword
+					str_token=gctrl.globalControl.token
+					try:
+						self.status['tag']='请求删除数据...'
+						self.status['return_value']=mrc.delete(str_name,str_email,str_pwd,str_token,value,self.status)
+						if(self.status['return_value']!=200):
+							self.status['running']=False
+						else:
+							pass
+					except Exception,e:
+						print 'Download '+str(e)
+						self.status['return_value']=207
+					finally:
+						self.status['running']=False
+			status={}
+			_mrdel=MrDel(status)
+			_mrdel.start()
+			_procdlg=procDlg(status)
+			_procdlg.main()
+			return_value=status['return_value']
+			print status
+			if(return_value!=200):
+				self.gladeMain.get_object("statusbar").push(0, '删除失败: '+gctrl.codeToString(return_value))
+			else:
+				self.gladeMain.get_object("statusbar").push(0, '删除成功: '+value)
+				self.refreshTreeView()
+		except Exception,e:
+			self.gladeMain.get_object("statusbar").push(1, '请选中一个文件')
+	def on_toolbtn_download_clicked(self,*args):
+		try:
+			_iter=self.mainList.get_iter(self.selectedRow)
+			value=self.mainList.get_value(_iter,0)
+			class MrDownload(threading.Thread):
+				def __init__(self,i_status):
+					super(MrDownload, self).__init__()
+					self.status=i_status
+				def run(self):
+					self.status['running']=True
+					str_name=gctrl.globalControl.uname
+					str_email=gctrl.globalControl.email
+					str_pwd=gctrl.globalControl.pword
+					str_token=gctrl.globalControl.token
+					try:
+						self.status['tag']='从服务器上下载数据...'
+						self.status['return_value']=mrc.download(str_name,str_email,str_pwd,str_token,value,self.status)
+						if(self.status['return_value']!=200):
+							self.status['running']=False
+						else:
+							print self.status
+							self.status['return_value']=mrc.RC4_Decode_File(str_pwd,self.status['path'])
+					except Exception,e:
+						print 'Download '+str(e)
+						self.status['return_value']=206
+					finally:
+						self.status['running']=False
+			status={}
+			_mrdld=MrDownload(status)
+			_mrdld.start()
+			_procdlg=procDlg(status)
+			_procdlg.main()
+			return_value=status['return_value']
+			print status
+			if(return_value!=200):
+				self.gladeMain.get_object("statusbar").push(0, '下载失败: '+gctrl.codeToString(return_value))
+			else:
+				self.gladeMain.get_object("statusbar").push(0, '下载成功: '+status['path'])
+		except Exception,e:
+			self.gladeMain.get_object("statusbar").push(1, '请选中一个文件')
 		

@@ -10,6 +10,8 @@ import Crypto.Cipher.ARC4 as RC4
 from poster.encode import multipart_encode
 from poster.streaminghttp import StreamingHTTPHandler, StreamingHTTPRedirectHandler, StreamingHTTPSHandler
 import globalControl as gctrl
+import glib
+import time
 
 try:
     from hashlib import md5
@@ -64,6 +66,14 @@ def RC4_Encode_File(key,path):
 	for pieces in _readfile(path):
 		f.write(RC4.new(key).encrypt(pieces))
 	return encode_path
+
+def RC4_Decode_File(key,path):
+	filename=path.split('/')[-1]
+	decode_path=os.path.join('/tmp',filename)
+	f=open(path,'wb')
+	for pieces in _readfile(decode_path):
+		f.write(RC4.new(key).decrypt(pieces))
+	return 200
 	
 	
 def login(uname,email,pword):
@@ -227,5 +237,87 @@ def upload(uname,email,pword,token,filepath):
 	req.add_header('User-Agent' , 'Offical Clinet for DjWebox')
 	req.add_header('Auth-Data' , json_data)
 	res=urllib2.urlopen(req).read()
-	print res
+	return int(res.split()[0])
+	
+def download(uname,email,pword,token,file_request,i_status):
+	try:
+		uname=uname.strip()
+		email=email.strip()
+		pword=pword.strip()
+		file_request=file_request.strip()
+
+		_MD5=md5()
+		_MD5.update(uname+email+pword)
+		auth_code=_MD5.hexdigest()
+		_MD5=md5()
+		_MD5.update(auth_code+token)
+		auth_code=_MD5.hexdigest()
+		
+		user_data = {
+			'uname' : uname,
+			'pword' : auth_code,
+			'fname' : file_request,
+			}
+		json_data=json.dumps(user_data)
+		postdata={'dwnld_req' : json_data}
+		postdata = urllib.urlencode(postdata)
+		req = urllib2.Request(
+			url = 'http://localhost:8000/download/',
+			data = postdata,
+			headers = {'User-Agent' : 'Offical Clinet for DjWebox'},
+			)
+		u = urllib2.urlopen(req)
+		downloads_dir = glib.get_user_special_dir(glib.USER_DIRECTORY_DOWNLOAD)
+		f = open(os.path.join('/tmp',file_request), 'wb')
+		print u.info()
+		meta = u.info()
+		file_size = int(meta.getheaders("Content-Length")[0])
+		print "Downloading: %s Bytes: %s" % (file_request, file_size)
+		i_status['tag']='文件大小 %s kb' % (str(round(file_size / 1024.,2)))
+		time.sleep(1)
+		file_size_dl = 0
+		block_sz = 8192
+		while True:
+			buffer = u.read(block_sz)
+			if not buffer:
+				break
+
+			file_size_dl += len(buffer)
+			f.write(buffer)
+			i_status['tag']='已下载 : %.2f%%' % (file_size_dl * 100. / file_size)
+			if(i_status['running']==False):
+				raise 'Abort'
+				break
+		f.close()
+		i_status['path']=os.path.join(downloads_dir,file_request)
+		return 200
+	except Exception,e:
+		print e
+		return 206
+
+def delete(uname,email,pword,token,file_request,i_status):
+	uname=uname.strip()
+	email=email.strip()
+	pword=pword.strip()
+	_MD5=md5()
+	_MD5.update(uname+email+pword)
+	auth_code=_MD5.hexdigest()
+	_MD5=md5()
+	_MD5.update(auth_code+token)
+	auth_code=_MD5.hexdigest()
+	
+	user_data = {
+		'uname' : uname,
+		'pword' : auth_code,
+		'fname' : file_request,
+		}
+	json_data=json.dumps(user_data)
+	postdata={'del_req' : json_data}
+	postdata = urllib.urlencode(postdata)
+	req = urllib2.Request(
+		url = 'http://localhost:8000/delete/',
+		data = postdata,
+		headers = {'User-Agent' : 'Offical Clinet for DjWebox'},
+		)
+	res=urllib2.urlopen(req).read()
 	return int(res.split()[0])

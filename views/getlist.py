@@ -60,7 +60,7 @@ def getlist(request):
 						def readlist(fl):
 							res=''
 							for item in fl:
-								res+=str(item.filename.encode(sys.getfilesystemencoding()))+'___SPLIT___'+str(round(os.path.getsize(item.position)/1024.,2))+' (kb)'+'\n'	
+								res+=str(item.filename.encode(sys.getfilesystemencoding()))+'___SPLIT___'+str(os.path.getsize(item.position))+'\n'	
 							return res
 						filelist=user.filebox_set.all()
 						res=HttpResponse('200 '+AES_Encode(user.pword,padIt(readlist(filelist))))

@@ -28,7 +28,7 @@ def delete(request):
 				user=User.objects.get(name=uname)
 				token=Token.objects.get(name=uname)
 			except:
-				return HttpResponse("User Not Found")
+				return HttpResponse("201 User_Not_Found")
 			md5_pwd=user.pword
 			token_code=token.token;
 			timestamp=token.timeStamp;
@@ -36,7 +36,7 @@ def delete(request):
 			
 			if(now-timestamp>=43200):
 				#One token is authed for 12 hours
-				return HttpResponse("Token Out of Date")
+				return HttpResponse("202 Token_Out_of_Date")
 			else:
 				_MD5=md5()
 				_MD5.update(md5_pwd+token_code)
@@ -45,12 +45,12 @@ def delete(request):
 						fb=FileBox.objects.get(filename=fname,owner=user)
 						os.remove(fb.position)
 						fb.delete()
-						return HttpResponse("OK")
+						return HttpResponse("200 OK")
 					except:
-						return HttpResponse("No such file!")
+						return HttpResponse("207 No_such_file!")
 				else:
-					return HttpResponse("Auth Faild!")
+					return HttpResponse("201 Auth_Faild!")
 		except Exception,e:
-			return HttpResponse(e)
+			return HttpResponse('999 '+str(e))
 	else:
-		return HttpResponse("Bad Request")
+		return HttpResponse("204 Bad_Request")
